@@ -63,7 +63,7 @@ public class SAThread extends Thread {
                             if (currentSolution.getNumColours() == 2)
                                 break;
                             int numChildren = rng.nextInt(50) + 1;
-
+                            System.out.println(id + " found better solution of " + currentSolution.getNumColours() + " from " + numColours + " at cycle " + i + " spawned " + numChildren);
                             currentSolution.cleanUp();
                             numColours = currentSolution.getNumColours();
                             SAThread child;
@@ -76,7 +76,7 @@ public class SAThread extends Thread {
                                 Future<Solution> futureCall = child.findSmaller();
                                 listOfExececutions.add(futureCall);
                             }
-                            System.out.println(id + " found better solution of " + currentSolution.getNumColours() + " from " + numColours + " at cycle " + i + " spawned " + numChildren);
+
                             int resultNumColours;
                             for (Future<Solution> futureCall : listOfExececutions) {
                                 Solution result = futureCall.get(); // Here the thread will be blocked
