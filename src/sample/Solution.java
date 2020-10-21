@@ -12,7 +12,7 @@ public class Solution {
     private List<Node> nodes = new ArrayList<>();
     private List<Edge> edges = new ArrayList<>();
     Random rng = new Random(0);
-
+    //Add Second rng for creation, creation can be the same, rng for changes can have random seed
     public Solution(String filePath){
         BufferedReader reader = null;
         try{

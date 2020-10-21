@@ -27,12 +27,12 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         int seed = 51784861;
         System.out.println(seed);
-        rng.setSeed(seed);
-        Solution firstSolution = initialization();
+        //rng.setSeed(seed);
+        Solution firstSolution = initialization();                                                                      //Get First Worst Soulution
         System.out.println("RUN");
         List<Integer> emptyList = new ArrayList<>();
-        SAThread child =  new SAThread(firstSolution,"0.",(int)firstSolution.size(), emptyList ,0);
-        Future<Solution> futureCall = child.findSmaller();
+        SAThread child =  new SAThread(firstSolution,"0.",(int)firstSolution.size(), emptyList ,0); //Create Master Thread
+        Future<Solution> futureCall = child.findSmaller();                                                              //Start Thread
         Solution result = futureCall.get();
         if(result.validSolution()){
             result.printSolution();
@@ -63,7 +63,8 @@ public class Main extends Application {
         }else if(list.size() == 2){
             nodes = Integer.parseInt(list.get(0));
             edges = Integer.parseInt(list.get(1))-nodes;
-        }
+        } else if(!list.get(0).contains(".csv"))
+            System.err.println("Arguments incorrect");
         Solution initSolution;
         if(list.get(0).contains(".csv")){
             initSolution = new Solution(list.get(0));
