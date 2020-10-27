@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import jdk.nashorn.internal.runtime.ConsString;
 
+import java.time.LocalTime;
 import java.util.*;
 import java.util.List;
 import java.awt.*;
@@ -28,15 +29,18 @@ public class Main extends Application {
         int seed = 51784861;
         System.out.println(seed);
         //rng.setSeed(seed);
-        Solution firstSolution = initialization();                                                                      //Get First Worst Soulution
+        Solution firstSolution = initialization();//Get First Worst Soulution
         System.out.println("RUN");
         List<Integer> emptyList = new ArrayList<>();
+        LocalTime start = LocalTime.now();
         SAThread child =  new SAThread(firstSolution,"0.",(int)firstSolution.size(), emptyList ,0); //Create Master Thread
-        Future<Solution> futureCall = child.findSmaller();                                                              //Start Thread
-        Solution result = futureCall.get();
-        if(result.validSolution()){
-            result.printSolution();
-            System.out.println(result.getNumColours());
+        Future<SolutionAndRecord> futureCall = child.findSmaller();                                                              //Start Thread
+        SolutionAndRecord result = futureCall.get();
+        Solution finalSolution = result.getSolution();
+        if(finalSolution.validSolution()){
+            finalSolution.printSolution();
+            System.out.println(finalSolution.getNumColours());
+            System.out.println(result.printRecords(start).toString());
         }
         else{
             System.out.println("Init Solution best solution");

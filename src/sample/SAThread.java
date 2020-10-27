@@ -12,10 +12,13 @@ import java.util.concurrent.Future;
 public class SAThread extends Thread {
     // Global vars:
     int rateOfDecay,numOfCycles = 100, numColours,maxChanges,numNodesToChange;
+
+    Record record;
+    SolutionAndRecord solutionAndRecord;
     String id;
     Solution currentSolution;
     Random rng = new Random();
-    private List<Future<Solution>> listOfExececutions= new ArrayList<>();
+    private List<Future<SolutionAndRecord>> listOfExececutions= new ArrayList<>();
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -24,6 +27,8 @@ public class SAThread extends Thread {
     {
         this.id = id;
         currentSolution = new Solution(solution);
+        record = new Record(id);
+        solutionAndRecord = new SolutionAndRecord(currentSolution);
         numColours = numColours_;
         for (Integer node: nodesToRecolour) {
             currentSolution.setNodeColour(node,newNodeRecolour);
@@ -49,7 +54,7 @@ public class SAThread extends Thread {
     }
 
     //@Override
-    public Future<Solution> findSmaller() throws Exception {
+    public Future<SolutionAndRecord> findSmaller() throws Exception {
         return executor.submit(() -> {
             try {
                 for(int i = 0; i <numOfCycles;i++) {
@@ -60,9 +65,11 @@ public class SAThread extends Thread {
 
                     if (currentSolution.validSolution()) {
                         if (currentSolution.getNumColours() < numColours) {
+                            record.foundNewSolution();
+
                             if (currentSolution.getNumColours() == 2)
                                 break;
-                            int numChildren = rng.nextInt(50) + 1;
+                            int numChildren = currentSolution.getNumColours();
                             System.out.println(id + " found better solution of " + currentSolution.getNumColours() + " from " + numColours + " at cycle " + i + " spawned " + numChildren);
                             currentSolution.cleanUp();
                             numColours = currentSolution.getNumColours();
@@ -73,18 +80,21 @@ public class SAThread extends Thread {
 
                                 //ExecutorService executor = Executors.newCachedThreadPool();
                                 child = new SAThread(currentSolution, (id + j + "."), numColours, nodesToChange, newColour);
-                                Future<Solution> futureCall = child.findSmaller();
+                                Future<SolutionAndRecord> futureCall = child.findSmaller();
                                 listOfExececutions.add(futureCall);
                             }
 
                             int resultNumColours;
-                            for (Future<Solution> futureCall : listOfExececutions) {
-                                Solution result = futureCall.get(); // Here the thread will be blocked
-                                resultNumColours = result.getNumColours();
-                                if (resultNumColours < numColours && result.validSolution()) {
+                            for (Future<SolutionAndRecord> futureCall : listOfExececutions) {
+                                SolutionAndRecord result = futureCall.get(); // Here the thread will be blocked
+                                solutionAndRecord.appendRecords(result.getRecords());
+                                Solution childSolution = result.getSolution();
+                                resultNumColours = childSolution.getNumColours();
+                                if (resultNumColours < numColours && childSolution.validSolution()) {
                                     System.out.println("Replacement");
-                                    currentSolution = result;
+                                    currentSolution = childSolution;
                                     numColours = resultNumColours;
+                                    solutionAndRecord.setSolution(currentSolution);
                                 }
                             }
                             break;
@@ -96,7 +106,9 @@ public class SAThread extends Thread {
             catch(Exception ex) {
                 ex.printStackTrace();
             }
-            return currentSolution;
+            record.closingThread();
+            solutionAndRecord.appendRecords(record);
+            return solutionAndRecord;
         }
         );
 
