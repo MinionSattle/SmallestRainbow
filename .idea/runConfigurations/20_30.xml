@@ -2,7 +2,7 @@
   <configuration default="false" name="20 30" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="sample.Main" />
     <module name="SmallestRainbow" />
-    <option name="PROGRAM_PARAMETERS" value="20 30" />
+    <option name="PROGRAM_PARAMETERS" value="20 40" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

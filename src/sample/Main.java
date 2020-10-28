@@ -26,8 +26,6 @@ public class Main extends Application {
     private int RNGMIN = 10, RNGMAX = 50;
     @Override
     public void start(Stage primaryStage) throws Exception{
-        int seed = 51784861;
-        System.out.println(seed);
         //rng.setSeed(seed);
         Solution firstSolution = initialization();//Get First Worst Soulution
         System.out.println("RUN");
@@ -58,13 +56,15 @@ public class Main extends Application {
 
         if(list.get(0).equals("Random")){
             nodes = rng.nextInt(RNGMAX) + RNGMIN;
-            int edgeMax = ((nodes*nodes)-nodes)/2;
+            System.out.println(nodes);
+            int edgeMax = ((nodes*nodes)-nodes)/4;
+            System.out.println(edgeMax);
             if(edgeMax > 0)
                 edges = rng.nextInt(edgeMax);
             else
                 edges = 0;
-
-        }else if(list.size() == 2){
+            System.out.println(edges);
+        }else if(list.size() == 2 || list.size() == 3){
             nodes = Integer.parseInt(list.get(0));
             edges = Integer.parseInt(list.get(1))-nodes;
         } else if(!list.get(0).contains(".csv"))
@@ -75,6 +75,8 @@ public class Main extends Application {
         }else {
             initSolution = new Solution(nodes,edges);
         }
+        if(list.size() == 3)
+            initSolution.setSeed(list.get(2));
         initSolution.printSolution();
         System.out.println("\n"+initSolution.getNumColours());
         return initSolution;
