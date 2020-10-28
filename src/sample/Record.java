@@ -33,11 +33,11 @@ public class Record {
 
     public String print(LocalTime startTime){
         String sRecord = "";
-        String elapsedTime;
+        long elapsedTime;
         if(passed)
-            elapsedTime = Duration.between(startTime,timeOfSplit).toString();
+            elapsedTime = Duration.between(startTime,timeOfSplit).toMillis();
         else
-            elapsedTime = Duration.between(startTime,timeOfReconnection).toString();
+            elapsedTime = Duration.between(startTime,timeOfReconnection).toMillis();
         sRecord += elapsedTime + ","+id+","+passed;
         return sRecord;
     }
