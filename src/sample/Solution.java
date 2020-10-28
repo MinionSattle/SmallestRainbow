@@ -43,7 +43,12 @@ public class Solution {
         }
 
     }
+    public void setSeed(String sSeed){
+        long seed;
+        seed = Long.valueOf(sSeed);
+        rng.setSeed(seed);
 
+    }
     public Solution(Solution solution){
         for(int i = 0; i < solution.nodes.size(); i++){
             nodes.add(new Node(i,solution.nodes.get(i).getColor()));
