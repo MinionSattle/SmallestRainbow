@@ -62,7 +62,7 @@ public class Node {
 
     public void printNode(){
         //Color printColor = new Color(color);
-        System.out.print((char)27+"[38;5;" + color+"m"+id);
+        System.out.print((char)27+"[38;5;" + color+"m"+id + ",");
 
         //System.out.println((char)27 + "[33mYELLOW");
 
