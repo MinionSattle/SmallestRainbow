@@ -162,6 +162,16 @@ public class Solution {
         return passRate;
     }
 
+    public Node getNode(int index)
+    {
+        return nodes.get(index);
+    }
+
+    public List<Node> getNodes()
+    {
+        return this.nodes;
+    }
+
     //#######################################################
     //#################     PRINT    ########################
     //#######################################################
@@ -171,7 +181,4 @@ public class Solution {
             edge.printEdge();
         }
     }
-
-
-
 }
