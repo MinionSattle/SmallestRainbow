@@ -9,6 +9,8 @@ public class Node {
     private int color;
     private List<Edge> edges;
     private int id;
+    private double xLoc;
+    private double yLoc;
 
     public Node(int id,int color) {
         this.color = color;
@@ -55,6 +57,30 @@ public class Node {
     public void setColor(int color) {
         this.color = color;
     }
+
+    public int numEdges(){return edges.size();}
+
+    public double getxLoc() {
+        return xLoc;
+    }
+
+    public void setxLoc(double xLoc) {
+        this.xLoc = xLoc;
+    }
+
+    public double getyLoc() {
+        return yLoc;
+    }
+
+    public void setyLoc(double yLoc) {
+        this.yLoc = yLoc;
+    }
+
+    public List<Edge> getEdges()
+    {
+        return this.edges;
+    }
+
 
     //#######################################################
     //#################     PRINT    ########################
