@@ -12,6 +12,7 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import jdk.nashorn.internal.runtime.ConsString;
 
+import java.time.LocalTime;
 import java.util.*;
 import java.util.List;
 import java.awt.*;
@@ -26,19 +27,21 @@ public class Main extends Application {
     private int RNGMIN = 10, RNGMAX = 50;
     @Override
     public void start(Stage primaryStage) throws Exception{
-        int seed = 51784861;
-        System.out.println(seed);
         //rng.setSeed(seed);
-        Solution firstSolution = initialization();                                                                      //Get First Worst Soulution
+        Solution firstSolution = initialization();//Get First Worst Soulution
         System.out.println("RUN");
         List<Integer> emptyList = new ArrayList<>();
+        LocalTime start = LocalTime.now();
         SAThread child =  new SAThread(firstSolution,"0.",(int)firstSolution.size(), emptyList ,0); //Create Master Thread
-        Future<Solution> futureCall = child.findSmaller();                                                              //Start Thread
-        Solution result = futureCall.get();
-        if(result.validSolution()){
-            result.printSolution();
-            System.out.println(result.getNumColours());
-            drawGraph(result, primaryStage);
+
+        Future<SolutionAndRecord> futureCall = child.findSmaller();                                                              //Start Thread
+        SolutionAndRecord result = futureCall.get();
+        Solution finalSolution = result.getSolution();
+        if(finalSolution.validSolution()){
+            finalSolution.printSolution();
+            System.out.println(finalSolution.getNumColours());
+            System.out.println(result.printRecords(start).toString());
+            drawGraph(finalSolution, primaryStage);
         }
         else{
             System.out.println("Init Solution best solution");
@@ -57,13 +60,15 @@ public class Main extends Application {
 
         if(list.get(0).equals("Random")){
             nodes = rng.nextInt(RNGMAX) + RNGMIN;
-            int edgeMax = ((nodes*nodes)-nodes)/2;
+            System.out.println(nodes);
+            int edgeMax = ((nodes*nodes)-nodes)/4;
+            System.out.println(edgeMax);
             if(edgeMax > 0)
                 edges = rng.nextInt(edgeMax);
             else
                 edges = 0;
-
-        }else if(list.size() == 2){
+            System.out.println(edges);
+        }else if(list.size() == 2 || list.size() == 3){
             nodes = Integer.parseInt(list.get(0));
             edges = Integer.parseInt(list.get(1))-nodes;
         } else if(!list.get(0).contains(".csv"))
@@ -74,6 +79,8 @@ public class Main extends Application {
         }else {
             initSolution = new Solution(nodes,edges);
         }
+        if(list.size() == 3)
+            initSolution.setSeed(list.get(2));
         initSolution.printSolution();
         System.out.println("\n"+initSolution.getNumColours());
         return initSolution;

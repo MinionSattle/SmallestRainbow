@@ -11,7 +11,8 @@ import java.util.Random;
 public class Solution {
     private List<Node> nodes = new ArrayList<>();
     private List<Edge> edges = new ArrayList<>();
-    Random rng = new Random(0);
+
+    Random rng = new Random();
     //Add Second rng for creation, creation can be the same, rng for changes can have random seed
     public Solution(String filePath){
         BufferedReader reader = null;
@@ -42,7 +43,12 @@ public class Solution {
         }
 
     }
+    public void setSeed(String sSeed){
+        long seed;
+        seed = Long.valueOf(sSeed);
+        rng.setSeed(seed);
 
+    }
     public Solution(Solution solution){
         for(int i = 0; i < solution.nodes.size(); i++){
             nodes.add(new Node(i,solution.nodes.get(i).getColor()));
