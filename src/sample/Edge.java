@@ -1,5 +1,6 @@
 package sample;
-
+//Seattle Tupuhi 1286197
+//Jesse Whitten 1311972
 public class Edge {
 
     private Node[] nodes;

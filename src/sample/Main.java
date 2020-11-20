@@ -12,6 +12,10 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import jdk.nashorn.internal.runtime.ConsString;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.List;
@@ -20,39 +24,64 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+//Seattle Tupuhi 1286197
+//Jesse Whitten 1311972
 
 public class Main extends Application {
     Random rng = new Random();
 
     private int RNGMIN = 10, RNGMAX = 50;
+    Solution bestSolution;
     @Override
     public void start(Stage primaryStage) throws Exception{
         //rng.setSeed(seed);
-        Solution currentSolution = initialization();//Get First Worst Solution
-        Solution bestSolution = new Solution(currentSolution);
-        System.out.println("RUN");
-        List<Integer> emptyList = new ArrayList<>();
-        LocalTime start = LocalTime.now();
-        //SAThread child =  new SAThread(firstSolution, emptyList ,0); //Create Master Thread
+        for(int c = 0; c < 30;c++) {
+            Solution currentSolution = initialization();                //Get First Worst Solution
+            bestSolution = new Solution(currentSolution);      //Store Current Solution
+            System.out.println("RUN");
+            //List<Integer> emptyList = new ArrayList<>();
+            //LocalTime start = LocalTime.now();
+            //SAThread child =  new SAThread(firstSolution, emptyList ,0); //Create Master Thread
 
-        //Future<Solution> futureCall = child.findSmaller();                                                              //Start Thread
-        //SolutionAndRecord result = futureCall.get();
+            //Future<Solution> futureCall = child.findSmaller();                                                              //Start Thread
+            //SolutionAndRecord result = futureCall.get();
 
-        for(int i =0;i<100;i++) {
-            currentSolution = getNextBest(new Solution(currentSolution));
-            if (currentSolution.validSolution() && currentSolution.getNumColours() < bestSolution.getNumColours()) {
-                bestSolution = currentSolution;
-                if(bestSolution.getNumColours() <= 3)
-                    break;
+            File file = new File("results.csv");    //This is where the time output will be stored
+            if (!file.exists())
+                file.createNewFile();
+
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
+                writer.write(c + " 50\n");             //C stands for which run, the number is the number of child threads
+                writer.flush();
+                long startTime = System.nanoTime();         //Stores the start time
+                writer.write(0 + "," + currentSolution.getNumColours() + "\n"); //Stores the total number of colours at initialisation
+                writer.flush();
+                for (int i = 0; i < 100; i++) {
+                    currentSolution = getNextBest(new Solution(bestSolution));   //Attempt to find a better solution
+                    if (currentSolution.validSolution() && currentSolution.getNumColours() < bestSolution.getNumColours()) {    //If New solution is better and if it is valid
+                        bestSolution = currentSolution; //Replace
+                        writer.write((System.nanoTime() - startTime)/1000000 + "," + currentSolution.getNumColours() + "\n");   //Record time
+                        writer.flush();
+                        if (bestSolution.getNumColours() <= 3)
+                            break;
+                        bestSolution.cleanUp(); //Reduces the colour values down
+                    }
+
+                }
+                writer.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
+            bestSolution.printSolution();
+            System.out.println(bestSolution.getNumColours());
+            System.gc();
         }
+            drawGraph(bestSolution, primaryStage);  //Draw Solution
+            System.out.println("Fin");
+        this.stop();
 
-        bestSolution.printSolution();
-        System.out.println(bestSolution.getNumColours());
-        //System.out.println(result.printRecords(start).toString());
-
-        drawGraph(bestSolution, primaryStage);
-        System.out.println("Fin");
     }
 
     private Solution getNextBest(Solution solution){
@@ -61,6 +90,7 @@ public class Main extends Application {
         List<Future<Solution>> listOfExececutions= new ArrayList<>();
         int numChildren = getNumChildren();
         try{
+            //For each child, chose a random set of nodes and recolour them, then add child thread to list
             for (int i = 0;i < numChildren;i++){
                 List<Integer> nodesToChange = chooseNodes(currentSolution.size());
                 int newColour = rng.nextInt((int) currentSolution.size());
@@ -69,17 +99,17 @@ public class Main extends Application {
                 listOfExececutions.add(futureCall);
             }
 
-            while(!futuresComplete(listOfExececutions)){
-                for (int f = 0; f < listOfExececutions.size();f++) {
-                    if(listOfExececutions.get(f).isDone() && !listOfExececutions.get(f).isCancelled()){
-                        Solution result = listOfExececutions.get(f).get(); // Here the thread will be blocked
+            while(!futuresComplete(listOfExececutions)){                                                    //While the threads have not finished
+                for (int f = 0; f < listOfExececutions.size();f++) {                                        //For each thread
+                    if(listOfExececutions.get(f).isDone() && !listOfExececutions.get(f).isCancelled()){     //If thread has finished but wasn't canceled
+                        Solution result = listOfExececutions.get(f).get();                                  // Get the result
                         int resultNumColours = result.getNumColours();
-                        if (resultNumColours < currentSolution.getNumColours() && result.validSolution()) {
+                        if (resultNumColours < currentSolution.getNumColours() && result.validSolution()) { //If the result is better than the previous and is valid
                             System.out.println("Replacement");
-                            currentSolution = result;
-                            if(currentSolution.getNumColours() <= 3){
+                            currentSolution = result;                                                       //Keep the solution
+                            if(currentSolution.getNumColours() <= 3){                                       //If the solution is less than or equal to three
                                 System.out.println("Min has been found");
-                                cancelAllThreads(listOfExececutions);
+                                cancelAllThreads(listOfExececutions);                                       //Stop all other searches
                                 break;
                             }
                         }
@@ -92,21 +122,25 @@ public class Main extends Application {
         }
         return currentSolution;
     }
+    //Check to see if all the solutions are completed
     private boolean futuresComplete(List<Future<Solution>> threads){
         boolean complete = true;
           for (Future<Solution> thread:threads) {
               if(!thread.isDone()){
                   complete = false;
+                  break;
               }
           }
           return complete;
       }
+      //Cancel all threads since we have found the minimum
       private void cancelAllThreads(List<Future<Solution>> threads){
         for (Future<Solution> thread:threads) {
             if(!thread.isDone())
                 thread.cancel(true);
           }
       }
+      //Choose a list of nodes to be changed
     private List<Integer> chooseNodes(int numNodes){
         List<Integer> nodes = new ArrayList<>();
         int node;
@@ -119,7 +153,7 @@ public class Main extends Application {
         return nodes;
     }
     private int getNumChildren(){
-        int children = 1;
+        int children = 50;
         //Determine how many children
         return children;
     }

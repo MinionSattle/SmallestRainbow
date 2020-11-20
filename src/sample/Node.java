@@ -3,7 +3,8 @@ package sample;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-
+//Seattle Tupuhi 1286197
+//Jesse Whitten 1311972
 public class Node {
 
     private int color;

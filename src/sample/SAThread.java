@@ -10,7 +10,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
+//Seattle Tupuhi 1286197
+//Jesse Whitten 1311972
 public class SAThread extends Thread {
     // Global vars:
     int rateOfDecay,numOfCycles = 100, numColours,maxChanges,numNodesToChange;
@@ -34,7 +35,7 @@ public class SAThread extends Thread {
         for (Integer node: nodesToRecolour) {
             currentSolution.setNodeColour(node,newNodeRecolour);
         }
-        numNodesToChange = (int)Math.ceil(currentSolution.size()/10);
+        //numNodesToChange = (int)Math.ceil(currentSolution.size()/10);
         setDecay();
         // Get copy of graph.
 
@@ -63,7 +64,7 @@ public class SAThread extends Thread {
     public Future<Solution> findSmaller() throws Exception {
         return executor.submit(() -> {
             try {
-                System.out.println("Started New Thread");
+                //System.out.println("Started New Thread");
                 for(int i = 0; i <numOfCycles;i++) {
                     for (int c = 0; c < rateOfDecay; c++) {
                         currentSolution.changeNode(numColours);
